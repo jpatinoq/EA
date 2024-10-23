@@ -22,7 +22,8 @@ map.on('style.load', () => {
         (layer) => layer.type === 'symbol' && layer.layout['text-field']
     ).id;
 
-    fetch('https://jpatinoq.github.io/EA/map3Dconst/src/data/test_dataset.geojson') // cambiar por ruta relativa
+    //fetch('https://jpatinoq.github.io/EA/map3Dconst/src/data/test_dataset.geojson') // cambiar por ruta relativa
+    fetch('../src/data/test_dataset.geojson') // ruta relativa
         .then(response => response.json())
         .then(data => {
             geojsonData = data;
