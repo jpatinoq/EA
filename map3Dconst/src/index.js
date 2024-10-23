@@ -1,234 +1,141 @@
-
-// The value for 'accessToken' begins with 'pk...'
-mapboxgl.accessToken = 
-    'pk.eyJ1IjoibWttZCIsImEiOiJjajBqYjJpY2owMDE0Mndsbml0d2V1ZXczIn0.el8wQmA-TSJp2ggX8fJ1rA';
+// use own access token
+mapboxgl.accessToken = 'pk.eyJ1Ijoiam9yZ2VwYXRpbm8iLCJhIjoiY2tnc2R0c20zMWVvdTJ5bXRpZ3Z4bDN1dCJ9.2LgsqgR7lXR6YFH2IaNc-w';
 const map = new mapboxgl.Map({
-    container: 'map', //container id
-    // Replace YOUR_STYLE_URL with your style URL.
-    style: 'mapbox://styles/mkmd/ck9eg99c72gwg1imtdbugc9yn', //Africapolis-mastermap
-    center: [7, 20], //center on data region
-    zoom: 3, //adjust to data extent
+    // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-76.63290738, 7.88156614], 
+    zoom: 16.5,
+    pitch: 60,
+    bearing: -17.6,
+    container: 'map',
+    antialias: true
 });
 
-// Create a popup, specify its options and properties, and add it to the map.
-const popup = new mapboxgl.Popup({
-    className: "MBpopup",
-    closeButton: false,
-    closeOnClick: false,
-    maxWidth: 200,
-});
+let geojsonData = null; // Variable para almacenar los datos del GeoJSON
+let codigoConValues = [];
 
-// Map
-map.on('load', () => {
-    //Add country labels from Mapbox tileset
-    map.addSource('country-labels', {
-        url: 'mapbox://mkmd.9rvgto2u',
-        type: 'vector'
-    });
-    map.addLayer({
-        id: 'map-labels',
-        type: 'symbol',
-        source: 'country-labels',
-        'source-layer': 'Africa_country_official_point-5smbpe',
-        filter: [ //Filter only African countries
-            "all",
-            [
-            "match",
-            ["get", "ISO3_CODE"],
-            [
-                "AGO",
-                "BDI",
-                "BEN",
-                "BFA",
-                "BWA",
-                "CAF",
-                "CIV",
-                "CMR",
-                "COD",
-                "COG",
-                "CPV",
-                "DJI",
-                "DZA",
-                "EGY",
-                "ERI",
-                "ETH",
-                "GAB",
-                "GHA",
-                "GIN",
-                "GMB",
-                "GNB",
-                "GNQ",
-                "KEN",
-                "LBR",
-                "LBY",
-                "LSO",
-                "MAR",
-                "MLI",
-                "MOZ",
-                "MRT",
-                "MWI",
-                "NAM",
-                "NER",
-                "NGA",
-                "RWA",
-                "SDN",
-                "SEN",
-                "SLE",
-                "SOM",
-                "SSD",
-                "STP",
-                "SWZ",
-                "TCD",
-                "TGO",
-                "TUN",
-                "TZA",
-                "UGA",
-                "ZAF",
-                "ZMB",
-                "ZWE",
-                "MDG",
-                "SYC",
-                "COM",
-            ],
-            true,
-            false,
-            ],
-        ],
-        layout: {
-            "text-field": ["get", "NAME_EN"], //Change to NAME_FR for French
-            "text-font": ["Arial Unicode MS Bold", "Arial Unicode MS Regular"],
-        },
-        paint: {
-            "text-color": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            "hsl(0,0%,0%)",
-            "#6d6d6f",
-            ],
-            "text-halo-color": "hsl(0, 0%, 100%)",
-            "text-halo-width": 1.25,
-            "text-opacity": ["step", ["zoom"], 0, 3, 1, 22, 1],
-        },
-    });
-    //Add layer from external source - new conflict cells
-    map.addSource('newcellsconflict', {
-        type: 'geojson',
-        data: 'https://jpatinoq.github.io/testData/newcellsconflict.geojson'
-        //'../src/data/map_suicide_attacks_gender_2011_22.geojson' //CHANGE TO UPDATE
+map.on('style.load', () => {
+    // Cargar datos de los edificios
+    // Insert the layer beneath any symbol layer.
+    const layers = map.getStyle().layers;
+    const labelLayerId = layers.find(
+        (layer) => layer.type === 'symbol' && layer.layout['text-field']
+    ).id;
+
+    fetch('https://jpatinoq.github.io/EA/map3Dconst/src/data/test_dataset.geojson') // cambiar por ruta relativa
+        .then(response => response.json())
+        .then(data => {
+            geojsonData = data;
+
+            map.addSource('buildings', {
+                type: 'geojson',
+                data: geojsonData
+            });
+
+            // Añadir capa de edificios 3D
+            map.addLayer({
+                id: '3d-buildings',
+                source: 'buildings',
+                type: 'fill-extrusion',
+                minzoom: 15,
+                paint: {
+                    'fill-extrusion-color': '#FFBD33',
+                    'fill-extrusion-height': ['get', 'max'],
+                    'fill-extrusion-base': 0,
+                    'fill-extrusion-opacity': 0.7
+                }
+            },
+            labelLayerId
+            );
+
+            // Obtener valores únicos de CODIGO_CON para autocompletar
+            const uniqueCodigoCon = new Set();
+
+            geojsonData.features.forEach((feature) => {
+                uniqueCodigoCon.add(feature.properties.CODIGO_CON);
+            });
+
+            codigoConValues = Array.from(uniqueCodigoCon);
+
+            // Llenar el datalist con los valores únicos
+            const dataList = document.getElementById('codigo-con-list');
+            codigoConValues.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                dataList.appendChild(option);
+            });
+
+            // Evento click en los edificios para pop-up
+            map.on('click', '3d-buildings', (e) => {
+                const feature = e.features[0];
+                const codigoCon = feature.properties.CODIGO_CON;
+                const altura = feature.properties.max;
+                const pisos = feature.properties.no_pisos;
+
+                const alturaRedondeada = Math.round(altura * 10) / 10;
+
+                const popupContent = 
+                    `<strong>Código:</strong> ${codigoCon}<br>
+                    <strong>Altura:</strong> ${alturaRedondeada} m, ${pisos} pisos`;
+
+                new mapboxgl.Popup({
+                    closeButton: false, // Desactivar el botón de cerrar
+                    className: 'custom-popup'
+                })
+                    .setLngLat(e.lngLat)
+                    .setHTML(popupContent)
+                    .addTo(map);
+            });
+
+            // Cambiar cursor al pasar sobre los edificios
+            map.on('mouseenter', '3d-buildings', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', '3d-buildings', () => {
+                map.getCanvas().style.cursor = '';
+            });
         });
-    // Add layer of 2022 cells
-    map.addLayer({
-        id: 'newcellsconflict-layer-2022',
-        type: 'fill',
-        source: 'newcellsconflict',
-        paint: {
-            'fill-color': '#440154',
-            'fill-outline-color': '#D3D3D3',
-            'fill-opacity': 0.7
-        },
-        filter: ['==', 'Year', 2022] // Filter data for 2022
+
+    // Búsqueda por CODIGO_CON
+    document.getElementById('search-button').addEventListener('click', () => {
+        const searchValue = document.getElementById('search-input').value.trim();
+
+        if (geojsonData) {
+            const foundFeature = geojsonData.features.find(
+                (feature) => feature.properties.CODIGO_CON === searchValue
+            );
+
+            if (foundFeature) {
+                // Coordenadas centrales del edificio
+                const coordinates = foundFeature.geometry.coordinates[0][0];
+
+                // Sacar el primer punto de las coordenadas del polígono
+                const lngLat = coordinates[0]; // Obtener el primer punto del polígono
+
+                // Hacer zoom a un nivel fijo (por ejemplo, 19) centrando el edificio
+                map.flyTo({
+                    center: lngLat,
+                    zoom: 19, // Ajusta este nivel de zoom según lo que prefieras
+                    speed: 0.8, // Controla la velocidad del vuelo
+                    curve: 1 // Ajusta la curva del vuelo
+                });
+
+                // Mostrar pop-up con la información del edificio
+                new mapboxgl.Popup({
+                    closeButton: false, // Desactivar el botón de cerrar
+                    className: 'custom-popup'
+                })
+                    .setLngLat(lngLat)
+                    .setHTML(
+                        `<strong>Código:</strong> ${foundFeature.properties.CODIGO_CON}<br>
+                            <strong>Altura:</strong> ${Math.round(foundFeature.properties.max * 10) / 10} m, 
+                            ${foundFeature.properties.no_pisos} pisos`
+                    )
+                    .addTo(map);
+            } else {
+                alert('No se encontró ningún edificio con ese CODIGO');
+            }
+        }
     });
-    // Add layer of 2023 cells
-    map.addLayer({
-        id: 'newcellsconflict-layer-2023',
-        type: 'fill',
-        source: 'newcellsconflict',
-        paint: {
-            'fill-color': '#FDE725',
-            'fill-outline-color': '#D3D3D3',
-            'fill-opacity': 0.7
-        },
-        filter: ['==', 'Year', 2023] // Filter data for 2022
-    });
 });
-
-//Add an event listener that runs when a user hovers on the map element.
-// for 2022 layer
-map.on('mouseenter', ['newcellsconflict-layer-2022'], (e) => {
-    // change the cursor style as a UI indicator
-    map.getCanvas().style.cursor = 'pointer';
-    // Copy coordinates array
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const description = 
-        `<p style="color:white; font-size: 90%">
-            Year: ${e.features[0].properties.Year}<br> 
-            Type of conlfict: ${e.features[0].properties.SCDi_en}<br>
-        </p>`;
-
-    // Ensure that if the map is zoomed out such that multiple
-    // copies of the feature are visible, the popup appears
-    // over the copy being pointed to.
-    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-    }
-
-    popup.setLngLat(e.lngLat).setHTML(description).addTo(map);
-});
-
-map.on('mouseleave', ['newcellsconflict-layer-2022'], () => {
-    map.getCanvas().style.cursor = '';
-    popup.remove();
-});
-
-// for 2023 layer
-map.on('mouseenter', ['newcellsconflict-layer-2023'], (e) => {
-    // change the cursor style as a UI indicator
-    map.getCanvas().style.cursor = 'pointer';
-    // Copy coordinates array
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const description = 
-        `<p style="color:white; font-size: 90%">
-            Year: ${e.features[0].properties.Year}<br> 
-            Type of conlfict: ${e.features[0].properties.SCDi_en}<br>
-        </p>`;
-
-    // Ensure that if the map is zoomed out such that multiple
-    // copies of the feature are visible, the popup appears
-    // over the copy being pointed to.
-    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-    }
-
-    popup.setLngLat(e.lngLat).setHTML(description).addTo(map);
-});
-
-map.on('mouseleave', ['newcellsconflict-layer-2023'], () => {
-    map.getCanvas().style.cursor = '';
-    popup.remove();
-});
-    
-// Add event listeners to the "years" buttons to show/hide by year
-// Add event listeners to the buttons
-document.getElementById('year-2022').addEventListener('click', function() {
-    toggleLayer('newcellsconflict-layer-2022');
-  });
-  
-  document.getElementById('year-2023').addEventListener('click', function() {
-    toggleLayer('newcellsconflict-layer-2023');
-  });
-  
-  // Function to toggle layer visibility
-  function toggleLayer(layerId) {
-    var visibility = map.getLayoutProperty(layerId, 'visibility');
-  
-    if (visibility === 'visible') {
-      map.setLayoutProperty(layerId, 'visibility', 'none');
-    } else {
-      map.setLayoutProperty(layerId, 'visibility', 'visible');
-    }
-  }
-
-// Add fullscreen control
-map.addControl(new mapboxgl.FullscreenControl(), 'top-left');
-    
-// Add zoom control ( + / -, reset orientation to North)
-map.addControl(new mapboxgl.NavigationControl({showCompass: false}), 'top-left');
-    
-// Add a scale bar in metric units
-const scalebar = new mapboxgl.ScaleControl({
-    maxWidth: 100,
-    unit: 'metric'
-});
-map.addControl(scalebar);
-
-

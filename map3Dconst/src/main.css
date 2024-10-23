@@ -1,77 +1,28 @@
-body {
-  margin: 0px;
-  padding: 0px;
-  font-family: 'Libre Franklin', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 
-.dot {
-  border-radius: 50%;
-  display: inline-block;
-}
+body { margin: 0; padding: 0; }
 
-#map {
-    width: 100%;
-    height: 501px;
-    border: 1px solid rgb(201, 185, 159);
-    border-radius: 4px;
-}
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
-#map-buttons {
+#search-container {
     position: absolute;
     top: 10px;
-    right: 10px;
+    left: 10px;
     z-index: 1;
-  }
-  
-  .year-button {
-    position: relative;
-    display: block; /* Display as block element */
-    margin-right: 2px;
-    margin-bottom: 2 px; /* Add space between buttons */
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 22px;
-    padding-right: 6px;
-    font-size: 12px;
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    cursor: pointer;
-    color: rgb(53, 83, 108); /* Text color */
-  }
-  
-  .year-button:hover {
-    background-color: #f0f0f0;
-  }
-
-  .year-button:active {
-    background-color: rgba(53, 83, 108, 1);
-    color: #ffffff;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+#search-input {
+    width: 200px;
+    padding: 5px;
+}
+#search-button {
+    padding: 5px;
 }
 
-/* Colored square */
-.year-button::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 4px; /* Adjust this value to control the distance from the text */
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-  }
-  
-  #year-2022::before {
-    background-color: #440154; /* Color for 2022 */
-  }
-  
-  #year-2023::before {
-    background-color: #FDE725; /* Color for 2023 */
-  }
-
-.MBpopup .mapboxgl-popup-content{
+/* Estilo para el pop-up */
+.mapboxgl-popup-content{
     font-size:0.8rem;
     padding: 5px 10px;
     background-color:#35536C;
@@ -96,10 +47,4 @@ body {
 
 .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
     border-left-color: rgb(53,83,108);
-}
-
-@media only screen and (max-width: 500px) {
-    .mapboxgl-map {
-        height: 300px !important;
-    }
 }
