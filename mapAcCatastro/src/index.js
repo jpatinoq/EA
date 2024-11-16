@@ -75,13 +75,6 @@ function addLayer(geojsonFile, sourceId, layerId, color, popupFields) {
 map.on('style.load', () => {
     const layers = map.getStyle().layers;
     const labelLayerId = layers.find((layer) => layer.type === 'symbol' && layer.layout['text-field']).id;
-
-    // Construcciones viejas
-    addLayer('cons_viejas.geojson', 'cons_v', 'c_viejas', '#AAB7B8', [
-        { label: 'Código', key: 'CODIGO_CON' },
-        { label: 'Número de pisos', key: 'NUMERO_PIS' },
-        { label: 'Área (&#13217;)', key: 'area' }
-    ]);
     // Construcciones nuevas
     addLayer('cons_nuevas.geojson', 'cons_n', 'c_nuevas', '#A569BD', [
         { label: 'Código', key: 'PK_PREDIOS' },
@@ -102,5 +95,11 @@ map.on('style.load', () => {
     addLayer('dem_total.geojson', 'dem_t', 'dem_total', '#E74C3C', [
         { label: 'Código', key: 'CODIGO_CON' },
         { label: 'Área demolida (&#13217;)', key: 'area' }
+    ]);
+        // Construcciones viejas
+    addLayer('cons_viejas.geojson', 'cons_v', 'c_viejas', '#AAB7B8', [
+        { label: 'Código', key: 'CODIGO_CON' },
+        { label: 'Número de pisos', key: 'NUMERO_PIS' },
+        { label: 'Área (&#13217;)', key: 'area' }
     ]);
 });
