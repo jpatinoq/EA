@@ -82,7 +82,16 @@ map.on('style.load', () => {
         { label: 'Número de pisos', key: 'NUMERO_PIS' },
         { label: 'Área (&#13217;)', key: 'area' }
     ]);
-
+    // Construcciones nuevas
+    addLayer('cons_nuevas.geojson', 'cons_n', 'c_nuevas', '#A569BD', [
+        { label: 'Código', key: 'PK_PREDIOS' },
+        { label: 'Área (&#13217;)', key: 'area' }
+    ]);
+    // Construcciones aumento
+    addLayer('cons_aumento.geojson', 'cons_a', 'c_aumento', '#F7DC6F', [
+        { label: 'Código', key: 'CODIGO_CON' },
+        { label: 'Incremento de área (&#13217;)', key: 'area' }
+    ]);
     // Demoliciones parciales
     addLayer('dem_parcial.geojson', 'dem_p', 'dem_parcial', '#F5B041', [
         { label: 'Código', key: 'CODIGO_CON' },
@@ -93,17 +102,5 @@ map.on('style.load', () => {
     addLayer('dem_total.geojson', 'dem_t', 'dem_total', '#E74C3C', [
         { label: 'Código', key: 'CODIGO_CON' },
         { label: 'Área demolida (&#13217;)', key: 'area' }
-    ]);
-
-    // Construcciones aumento
-    addLayer('cons_aumento.geojson', 'cons_a', 'c_aumento', '#F7DC6F', [
-        { label: 'Código', key: 'CODIGO_CON' },
-        { label: 'Incremento de área (&#13217;)', key: 'area' }
-    ]);
-
-    // Construcciones nuevas
-    addLayer('cons_nuevas.geojson', 'cons_n', 'c_nuevas', '#A569BD', [
-        { label: 'Código', key: 'PK_PREDIOS' },
-        { label: 'Área (&#13217;)', key: 'area' }
     ]);
 });
