@@ -75,16 +75,7 @@ function addLayer(geojsonFile, sourceId, layerId, color, popupFields) {
 map.on('style.load', () => {
     const layers = map.getStyle().layers;
     const labelLayerId = layers.find((layer) => layer.type === 'symbol' && layer.layout['text-field']).id;
-    // Construcciones nuevas
-    addLayer('cons_nuevas.geojson', 'cons_n', 'c_nuevas', '#A569BD', [
-        { label: 'Código', key: 'PK_PREDIOS' },
-        { label: 'Área (&#13217;)', key: 'area' }
-    ]);
-    // Construcciones aumento
-    addLayer('cons_aumento.geojson', 'cons_a', 'c_aumento', '#F7DC6F', [
-        { label: 'Código', key: 'CODIGO_CON' },
-        { label: 'Incremento de área (&#13217;)', key: 'area' }
-    ]);
+
     // Demoliciones parciales
     addLayer('dem_parcial.geojson', 'dem_p', 'dem_parcial', '#F5B041', [
         { label: 'Código', key: 'CODIGO_CON' },
@@ -96,10 +87,31 @@ map.on('style.load', () => {
         { label: 'Código', key: 'CODIGO_CON' },
         { label: 'Área demolida (&#13217;)', key: 'area' }
     ]);
-        // Construcciones viejas
+
+    // Construcciones aumento
+    addLayer('cons_aumento.geojson', 'cons_a', 'c_aumento', '#F7DC6F', [
+        { label: 'Código', key: 'CODIGO_CON' },
+        { label: 'Incremento de área (&#13217;)', key: 'area' }
+    ]);
+
+    // Construcciones nuevas
+    addLayer('cons_nuevas.geojson', 'cons_n', 'c_nuevas', '#A569BD', [
+        { label: 'Código', key: 'PK_PREDIOS' },
+        { label: 'Área (&#13217;)', key: 'area' }
+    ]);
+
+    // Construcciones viejas
     addLayer('cons_viejas.geojson', 'cons_v', 'c_viejas', '#AAB7B8', [
         { label: 'Código', key: 'CODIGO_CON' },
         { label: 'Número de pisos', key: 'NUMERO_PIS' },
         { label: 'Área (&#13217;)', key: 'area' }
     ]);
+
+    // Mover el layer "Construcciones viejas" al fondo
+    map.on('sourcedata', () => {
+        if (map.getLayer('c_viejas')) {
+            map.moveLayer('c_viejas', 'dem_parcial'); // Mover "c_viejas" debajo del primer layer agregado
+        }
+    });
 });
+
