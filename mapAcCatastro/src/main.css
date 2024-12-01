@@ -14,8 +14,8 @@ body {
 /* Leyenda */
 .legend-container {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    bottom: 25px;
+    right: 5px;
     z-index: 10;
     background-color: rgba(0, 0, 0, 0.7);
     padding: 15px;
@@ -76,6 +76,30 @@ body {
     background-color: #E74C3C;
 }
 
+/** Caja de información */
+.info-box {
+    left: 10px;
+    top: 310px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    border-radius: 8px;
+    position: absolute;
+    z-index: 10;
+    width: 200px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    color: white; /* Color blanco para texto */
+    display: none;
+  }
+  
+  .info-box h3 {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
 /* CSS para el popup personalizado */
 .custom-popup .mapboxgl-popup-content {
     font-size: 0.8rem;
@@ -113,4 +137,8 @@ body {
 
 .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
     border-left-color: rgba(0, 0, 0, 0.8);
+}
+
+.mapboxgl-ctrl-geocoder {
+    width: 300px!important;
 }

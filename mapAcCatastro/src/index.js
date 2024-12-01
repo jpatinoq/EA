@@ -3,7 +3,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoiam9yZ2VwYXRpbm8iLCJhIjoiY2tnc2R0c20zMWVvdTJ5b
 
 const map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/dark-v11',
-    center: [-76.63290500, 7.88156614],
+    center: [-76.62000, 7.88400],
     zoom: 14,
     pitch: 0,
     bearing: 0,
@@ -34,7 +34,8 @@ function addLayer(geojsonFile, sourceId, layerId, color, popupFields) {
                 minzoom: 12,
                 paint: {
                     'fill-color': color,
-                    'fill-opacity': 0.75
+                    'fill-opacity': 0.75,
+                    "fill-outline-color": '#ffffff'
                 }
             });
 
@@ -70,6 +71,8 @@ function addLayer(geojsonFile, sourceId, layerId, color, popupFields) {
             });
         });
 }
+
+
 
 // Cargar capas en el orden definido
 map.on('style.load', () => {
@@ -113,5 +116,73 @@ map.on('style.load', () => {
             map.moveLayer('c_viejas', 'dem_parcial'); // Mover "c_viejas" debajo del primer layer agregado
         }
     });
+});
+
+// Configurar el Geocoder para buscar en el layer 'c_viejas'
+const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    marker: false, // Evitar que agregue un marcador automáticamente
+    localGeocoder: function (query) {
+        const matchingFeatures = [];
+
+        // Consultar las features del layer 'c_viejas'
+        const features = map.querySourceFeatures('cons_v'); // 'cons_v' es el sourceId del layer 'c_viejas'
+
+        features.forEach((feature) => {
+            const props = feature.properties;
+
+            // Buscar coincidencias en el campo CODIGO_CON (puedes cambiar el campo de búsqueda)
+            if (props.CODIGO_CON && props.CODIGO_CON.toLowerCase().includes(query.toLowerCase())) {
+                matchingFeatures.push({
+                    type: 'Feature',
+                    geometry: feature.geometry,
+                    properties: props,
+                    place_name: `Código: ${props.CODIGO_CON}`, // Texto que se mostrará en el resultado
+                    text: props.CODIGO_CON,
+                    center: turf.centroid(feature).geometry.coordinates, // Centrar el mapa en el polígono
+                    place_type: ['place']
+                });
+            }
+        });
+
+        return matchingFeatures;
+    },
+    placeholder: 'Buscar código catastral',
+    localGeocoderOnly: true // Limitar la búsqueda a datos locales
+
+});
+
+// Agregar el Geocoder al mapa
+map.addControl(geocoder, 'top-left');
+// Add zoom and rotation controls to the map.
+map.addControl(new mapboxgl.NavigationControl());
+
+// Hacer zoom al polígono seleccionado y actualizar la caja de información
+geocoder.on('result', (e) => {
+    const result = e.result;
+
+    if (result && result.geometry) {
+        const bounds = turf.bbox(result); // Obtener límites del polígono
+        map.fitBounds(bounds, { padding: 20 });
+
+        // Mostrar el popup con la información del polígono
+        const coordinates = result.center;
+        const properties = result.properties;
+
+        // Crear el contenido del popup (similar al mouseover)
+        const popupContent = `
+            <strong>Código:</strong> ${properties.CODIGO_CON || 'N/A'}<br>
+            <strong>Área (&#13217;):</strong> ${Math.round(properties.area || 0)}<br>
+            <strong>Altura: </strong> ${Math.round(properties.NUMERO_PIS || 0)} pisos<br>
+            <a style="font-size:9px;">&#9400 EffectiveActions</a>
+        `;
+
+        // Configurar el popup
+        popup
+            .setLngLat(coordinates)
+            .setHTML(popupContent)
+            .addTo(map);
+    }
 });
 
