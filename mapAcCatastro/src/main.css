@@ -76,38 +76,28 @@ body {
     background-color: #E74C3C;
 }
 
-/** Caja de información */
-.info-box {
-    left: 10px;
-    top: 310px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px;
-    font-family: Arial, sans-serif;
-    font-size: 10px;
-    border-radius: 8px;
-    position: absolute;
-    z-index: 10;
-    width: 200px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-    color: white; /* Color blanco para texto */
-    display: none;
-  }
-  
-  .info-box h3 {
-    margin: 0 0 10px 0;
-    font-weight: bold;
-    font-size: 14px;
-  }
-
 /* CSS para el popup personalizado */
 .custom-popup .mapboxgl-popup-content {
     font-size: 0.8rem;
-    padding: 10px 15px;
+    padding: 10px;
     background-color: rgba(0, 0, 0, 0.8);
     color: #fff;
     border-radius: 8px;
-    max-width: 250px;
+    width: 320px;
+    overflow: visible;
+    word-wrap: normal;
+}
+
+.custom-popup table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.custom-popup th,
+.custom-popup td {
+    padding: 5px;
+    border: 1px solid #ccc;
+    font-size: 0.7rem;
 }
 
 .mapboxgl-popup-content a {
