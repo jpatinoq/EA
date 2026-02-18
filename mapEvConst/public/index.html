@@ -8,7 +8,6 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css' type='text/css' />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700&display=swap" rel="stylesheet">
@@ -22,25 +21,26 @@
     <div id="map"></div>
 
     <!-- add legend container 1 -->
-    <div class="legend-container">
-        <div class="legend">
-            <strong>Año</strong>
-        </div>
-        <div class="color-bar">
-            <div class="legend-text">2024</div>  <!-- Añadir el texto de 2024 -->
-        </div>
-        <div class="legend-labels">
-            <div>1985 o antes</div>
-        </div>
-        <!-- year slider -->
-        <div>
-            <label id="year-label" for="year-slider">1985</label>
-            <input id="year-slider" type="range" min="1985" max="2024" step="1" value="2024">
+    <div class="legend-wrapper"></div>
+        <div class="legend-container">
+            <div class="legend">
+                <strong>Año</strong>
+            </div>
+            <div class="color-bar">
+                <div class="legend-text">2024</div>  <!-- Añadir el texto de 2024 -->
+            </div>
+            <div class="legend-labels">
+                <div>1985 o antes</div>
+            </div>
+            <!-- Year display and Play/Pause button -->
+            <div class="year-container">
+                <label id="year-label" for="year-slider">1985</label>
+                <input id="year-slider" type="range" min="1985" max="2024" step="1" value="1985">
+                <button id="play-pause-btn">⏸</button>
+            </div>
+            
         </div>
     </div>
-
-    
-    
 
     <script src="../src/index.js"></script> 
 </body>
