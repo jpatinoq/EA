@@ -1,4 +1,4 @@
-// Use own access token
+// Usar token de acceso propio
 mapboxgl.accessToken = 'pk.eyJ1Ijoiam9yZ2VwYXRpbm8iLCJhIjoiY2tnc2R0c20zMWVvdTJ5bXRpZ3Z4bDN1dCJ9.2LgsqgR7lXR6YFH2IaNc-w';
 const map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/dark-v11',
@@ -55,10 +55,15 @@ map.on('style.load', () => {
                     ],
                     'fill-opacity': 1
                     },
-                filter: ['==', ['get', 'const_year'], 1985] // Filtra por el año 1985
+                filter: ['==', ['get', 'const_year'], 1985] // Filtrar por el año 1985
             }, labelLayerId);
 
-            // Evento mousemove en los edificios para mostrar popup
+            // Iniciar la animación automáticamente SOLO después de que la capa exista
+            currentYear = START_YEAR;
+            updateYear(START_YEAR);
+            startAnimation();
+
+            // Evento mousemove sobre los edificios para mostrar ventana emergente
             map.on('mousemove', 'buildings', (e) => {
                 const feature = e.features[0];
                 const year = feature.properties.const_year;
@@ -76,12 +81,12 @@ map.on('style.load', () => {
                     .addTo(map);
             });
 
-            // Cambiar cursor al pasar sobre los edificios
+            // Cambiar el cursor al pasar sobre los edificios
             map.on('mouseenter', 'buildings', () => {
                 map.getCanvas().style.cursor = 'pointer';
             });
 
-            // Cerrar popup y restaurar cursor cuando el mouse sale de un edificio
+            // Cerrar la ventana emergente y restaurar el cursor cuando el mouse salga de un edificio
             map.on('mouseleave', 'buildings', () => {
                 map.getCanvas().style.cursor = '';
                 popup.remove();
@@ -91,16 +96,73 @@ map.on('style.load', () => {
         const yearSlider = document.getElementById('year-slider');
         const yearLabel = document.getElementById('year-label');
 
-        // Establecer el valor inicial del slider al mínimo (1985)
-        yearSlider.value = yearSlider.min;  // Esto pone el slider en el valor mínimo al cargar la página
+        // Establecer el valor inicial del control deslizante en el mínimo (1985)
+        yearSlider.value = yearSlider.min;  // Esto coloca el control deslizante en el valor mínimo al cargar la página
         
         yearSlider.addEventListener('input', (event) => {
             const selectedYear = event.target.value;
         
-            // Actualiza el texto del label
+            // Actualizar el texto de la etiqueta
             yearLabel.textContent = `${selectedYear}`;
         
-            // Filtra los edificios según el año seleccionado
-            map.setFilter('buildings', ['<=', ['get', 'const_year'], parseInt(selectedYear)]);
+            // Filtrar los edificios según el año seleccionado
+            if (map.getLayer('buildings')) {
+                map.setFilter('buildings', ['<=', ['get', 'const_year'], parseInt(selectedYear)]);
+            }
         });
+
+        // --- Controles de animación ---
+        const START_YEAR = 1985;
+        const END_YEAR = 2024;
+        const ANIMATION_SPEED = 250; // milisegundos
+
+        const playPauseBtn = document.getElementById('play-pause-btn');
+
+        let currentYear = START_YEAR;
+        let animationInterval = null;
+        let isPlaying = true;
+
+        function updateYear(year) {
+            yearLabel.textContent = `${year}`;
+            yearSlider.value = year;
+            if (map.getLayer('buildings')) {
+                map.setFilter('buildings', ['<=', ['get', 'const_year'], year]);
+            }
+        }
+
+        function startAnimation() {
+            if (animationInterval) return;
+
+            isPlaying = true;
+            if (playPauseBtn) playPauseBtn.textContent = '⏸';
+
+            animationInterval = setInterval(() => {
+                if (currentYear > END_YEAR) {
+                    currentYear = START_YEAR;
+                }
+
+                updateYear(currentYear);
+                currentYear++;
+            }, ANIMATION_SPEED);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            if (playPauseBtn) playPauseBtn.textContent = '▶';
+
+            clearInterval(animationInterval);
+            animationInterval = null;
+        }
+
+        if (playPauseBtn) {
+            playPauseBtn.textContent = '⏸';
+            playPauseBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    stopAnimation();
+                } else {
+                    startAnimation();
+                }
+            });
+        }
+
 });

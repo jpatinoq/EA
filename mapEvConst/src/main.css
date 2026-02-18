@@ -1,6 +1,15 @@
-body { margin: 0; padding: 0; }
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Libre Franklin', sans-serif;
+}
 
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+#map { 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    width: 100%; 
+}
 
 /* Estilo para el pop-up */
 .custom-popup .mapboxgl-popup-content {
@@ -34,15 +43,16 @@ body { margin: 0; padding: 0; }
 
 /* Contenedor para la leyenda y el slider */
 .legend-container {
-    position: absolute;
+    position: relative;  /* CHANGED: Now positioning context for children */
     top: 10px;
     left: 10px;
     z-index: 10;
     background-color: rgba(0, 0, 0, 0.5);
-    padding: 15px;
+    padding: 15px;      /* INCREASED: More space for button */
     border-radius: 5px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    width: 50%;
+    width: 35%;
+    height: 160px;      /* ADDED: Fixed height to contain all elements */
 }
 
 .legend {
@@ -105,15 +115,15 @@ body { margin: 0; padding: 0; }
     font-size: 0.8rem;
 }
 
-/* Slider y etiqueta de año */
+/* Slider y etiqueta de año - positioned relative to legend-container */
 #year-label {
     position: absolute;
-    top: 65px; /* Ajusta según necesites para la distancia vertical */
+    top: 65px;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
     color: white;
-    z-index: 10;
+    z-index: 15;
     font-size: 2rem;
 }
 
@@ -122,6 +132,25 @@ body { margin: 0; padding: 0; }
     top: 47px;
     left: 10px;
     width: calc(100% - 25px);
-    z-index: 10;
+    z-index: 15;
     height: 1px;
+}
+
+/* Botón Play/Pause - now INSIDE legend frame */
+#play-pause-btn {
+    position: absolute;
+    bottom: 15px;        /* Positioned from bottom of legend-container */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    color: #000000;
+    height: 30px;
+    width: 40px;
+    border: none;        /* ADDED: Override Mapbox button styles */
+    border-radius: 5px;
+    font-size: 1.25rem;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 20;         /* Above other legend elements */
 }
