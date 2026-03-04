@@ -1,5 +1,12 @@
-// Usar token de acceso propio
-mapboxgl.accessToken = 'pk.eyJ1Ijoiam9yZ2VwYXRpbm8iLCJhIjoiY2tnc2R0c20zMWVvdTJ5bXRpZ3Z4bDN1dCJ9.2LgsqgR7lXR6YFH2IaNc-w';
+// Usar token de acceso propio para GitHub pages
+// Verificar que el token esté definido
+if (!window.MAPBOX_TOKEN) {
+    throw new Error("MAPBOX_TOKEN no está definido. Verifica config.js");
+}
+// Asignar token a Mapbox
+mapboxgl.accessToken = window.MAPBOX_TOKEN;
+
+// Mapa
 const map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/dark-v11',
     center: [-76.63290500, 7.88156614], 
